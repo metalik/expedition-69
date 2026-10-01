@@ -1,0 +1,17 @@
+{
+  "name": "expedition-69",
+  "version": "1.0.0",
+  "description": "Expedition 69 - a browser RPG with real-time QTE defense (dodge, parry, jump, gradient counter) and timed offensive QTEs.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node tools/serve.mjs",
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "sim": "node tools/simulate.mjs",
+    "shot": "node tools/cdp.mjs",
+    "e2e": "node tools/e2e.mjs"
+  }
+}

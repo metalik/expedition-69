@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#15100d">
+  <meta name="color-scheme" content="dark">
+  <title>Expedition 69 — World Bench</title>
+  <link rel="icon" href="data:,">
+  <!-- Exploration bench: boots a Game with the real WorldScene and stub battle/pause/flag/dialogue/shop scenes.
+       URL: ?zone=shore|thicket|spire|summit &x=&y= (tile) &debug=1 (collision, spawn radii, camp safe zones, FPS)
+            &validate=1 &overview=1 (whole-map render) &portraits=1 (NPC busts) &fresh=1 (new game state)
+            &level=N (party level) &bosses=a,b &worldQuality=low|high -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" media="print" onload="this.media='all'"
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap">
+  <style>
+    html, body { background: #0d0a08; }
+    #errors { position: fixed; left: 8px; bottom: 8px; z-index: 10; max-width: 70vw; max-height: 45vh; overflow: auto;
+      font: 12px/1.4 ui-monospace, Menlo, monospace; color: #fff; background: rgba(150, 20, 20, 0.92);
+      border: 1px solid #ff8a80; border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; }
+    #errors:empty { display: none; }
+    #bench-log { position: fixed; right: 8px; bottom: 8px; z-index: 9; max-width: 36vw; max-height: 40vh; overflow: hidden;
+      font: 11px/1.35 ui-monospace, Menlo, monospace; color: #e9dcc0; background: rgba(16, 12, 10, 0.78);
+      border: 1px solid rgba(224, 180, 88, 0.4); border-radius: 6px; padding: 6px 8px; white-space: pre-wrap; pointer-events: none; }
+    #bench-log:empty { display: none; }
+    #validation { position: fixed; inset: 20px; z-index: 11; overflow: auto; font: 12px/1.45 ui-monospace, Menlo, monospace;
+      color: #e9dcc0; background: rgba(16, 12, 10, 0.95); border: 1px solid #e0b458; border-radius: 8px; padding: 14px 18px; white-space: pre-wrap; }
+    #validation:empty { display: none; }
+    #overview { display: block; margin: 0 auto; }
+  </style>
+  <script>
+    window.__errors = [];
+    (function () {
+      function show(msg) {
+        window.__errors.push(String(msg));
+        var box = document.getElementById('errors');
+        if (box) box.textContent = window.__errors.map(function (m) { return '⚠ ' + m; }).join('\n');
+      }
+      window.__showError = show;
+      window.addEventListener('error', function (e) {
+        show((e.error && e.error.stack) || (e.message + ' @ ' + e.filename + ':' + e.lineno));
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        var r = e.reason;
+        show('Unhandled rejection: ' + ((r && r.stack) || r));
+      });
+      var warn = console.warn.bind(console);
+      console.warn = function () { show('WARN: ' + Array.prototype.join.call(arguments, ' ')); warn.apply(console, arguments); };
+      var err = console.error.bind(console);
+      console.error = function () { show('ERROR: ' + Array.prototype.map.call(arguments, function (x) { return (x && x.stack) || x; }).join(' ')); err.apply(console, arguments); };
+    })();
+  </script>
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage">
+      <canvas id="game" width="1280" height="720" aria-label="World bench canvas"></canvas>
+      <div id="ui" aria-live="polite"></div>
+      <div id="fade"></div>
+    </div>
+  </div>
+  <div id="bench-log"></div>
+  <pre id="validation"></pre>
+  <div id="errors" role="alert"></div>
+  <script type="module" src="world.js"></script>
+</body>
+</html>

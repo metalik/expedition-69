@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#15100d">
+  <meta name="color-scheme" content="dark">
+  <title>Expedition 69 — UI Bench</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Web fonts load without blocking the page or the game: media="print" never blocks, onload applies them.
+       src/main.js waits for them briefly (≤ 1.5 s) and starts in Georgia when they are slow or offline. -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap" media="print" data-webfonts onload="this.media='all'" onerror="this.dataset.webfonts='failed'">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    #errors { position: fixed; left: 8px; bottom: 8px; z-index: 10; max-width: 70vw; font: 13px/1.4 ui-monospace, Menlo, monospace;
+      color: #fff; background: rgba(150, 20, 20, 0.92); border: 1px solid #ff8a80; border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; }
+    #errors:empty { display: none; }
+  </style>
+  <script>
+    // The bench boots its own Game with stub world/battle scenes; keep src/main.js from auto-booting.
+    window.__EXP69_NO_BOOT__ = true;
+    window.__errors = [];
+    (function () {
+      function show(msg) {
+        window.__errors.push(String(msg));
+        var box = document.getElementById('errors');
+        if (box) box.textContent = window.__errors.map(function (m) { return '⚠ ' + m; }).join('\n');
+      }
+      window.addEventListener('error', function (e) { show((e.error && e.error.stack) || (e.message + ' @ ' + e.filename + ':' + e.lineno)); });
+      window.addEventListener('unhandledrejection', function (e) { var r = e.reason; show('Unhandled rejection: ' + ((r && r.stack) || r)); });
+    })();
+  </script>
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage">
+      <canvas id="game" width="1280" height="720" aria-label="UI bench canvas"></canvas>
+      <div id="ui" aria-live="polite"></div>
+      <div id="fade"></div>
+    </div>
+  </div>
+  <div id="errors" role="alert"></div>
+  <script type="module" src="ui.js"></script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Expedition 69 — FX showcase</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap">
+  <style>
+    :root { --ink: #15100d; --panel: rgba(16, 12, 10, 0.9); --gold: #e0b458; --ivory: #f5eedf; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: #0b0907; color: var(--ivory); font-family: "Cormorant Garamond", Georgia, serif; }
+    body.capture { overflow: hidden; }
+    #stage { position: relative; width: 1280px; height: 720px; transform-origin: 0 0; }
+    #stage canvas { position: absolute; inset: 0; width: 1280px; height: 720px; display: block; }
+    #domIcons { position: absolute; left: 0; top: 0; pointer-events: none; }
+    #domIcons img { position: absolute; }
+    #panel { padding: 14px 18px 40px; display: grid; gap: 10px; max-width: 1280px; }
+    #panel h2 { font-family: Cinzel, serif; font-size: 13px; letter-spacing: 0.18em; color: var(--gold); margin: 6px 0 2px; }
+    .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    button, select, label.tog {
+      font-family: Cinzel, serif; font-size: 12px; letter-spacing: 0.06em; color: var(--ivory);
+      background: #221a14; border: 1px solid rgba(224, 180, 88, 0.45); border-radius: 3px; padding: 5px 9px; cursor: pointer;
+    }
+    button:hover, button:focus-visible { border-color: var(--gold); background: #2e2219; outline: none; }
+    button.sel { background: #4a3418; border-color: var(--gold); }
+    label.tog input { margin-right: 6px; vertical-align: -1px; }
+    #hint { font-size: 16px; opacity: 0.8; }
+    #errors {
+      position: fixed; left: 0; right: 0; top: 0; z-index: 10; margin: 0; padding: 12px 16px; max-height: 60vh; overflow: auto;
+      background: rgba(150, 20, 20, 0.94); color: #fff; font: 13px/1.4 ui-monospace, Menlo, monospace; white-space: pre-wrap;
+    }
+    #perf { position: absolute; right: 10px; top: 8px; font: 12px ui-monospace, Menlo, monospace; color: #ffe; text-shadow: 0 1px 2px #000; pointer-events: none; white-space: pre; }
+  </style>
+  <script>
+    // Surface errors visibly (also for headless screenshots / --dump-dom).
+    (function () {
+      const show = (msg) => {
+        const el = document.getElementById('errors');
+        if (!el) { (window.__pendingErrors = window.__pendingErrors || []).push(msg); return; }
+        el.hidden = false;
+        el.textContent += msg + '\n';
+      };
+      window.__showError = show;
+      window.addEventListener('error', (e) => show('Error: ' + e.message + (e.filename ? ` (${e.filename.split('/').pop()}:${e.lineno})` : '')));
+      window.addEventListener('unhandledrejection', (e) => show('Unhandled rejection: ' + (e.reason && (e.reason.stack || e.reason.message) || e.reason)));
+      const warn = console.warn.bind(console);
+      console.warn = (...a) => { warn(...a); show('warn: ' + a.join(' ')); };
+    })();
+  </script>
+</head>
+<body>
+  <pre id="errors" hidden></pre>
+  <div id="stage">
+    <canvas id="c" width="1280" height="720" aria-label="FX showcase canvas"></canvas>
+    <div id="domIcons"></div>
+    <div id="perf"></div>
+  </div>
+  <div id="panel" hidden>
+    <div id="hint">Click the stage to spawn the selected burst there. Params for headless checks: <code>?bg=shore[&amp;phase=1]</code>, <code>?title=1</code>, <code>?demo=1</code>, <code>?icons=1</code>, <code>?cues=1</code>, <code>?perf=1</code>.</div>
+    <h2>Scene</h2><div class="row" id="sceneRow"></div>
+    <h2>Bursts</h2><div class="row" id="burstRow"></div>
+    <h2>Combat text &amp; banners</h2><div class="row" id="textRow"></div>
+    <h2>Motion</h2><div class="row" id="motionRow"></div>
+    <h2>Screen</h2><div class="row" id="screenRow"></div>
+    <h2>Options</h2><div class="row" id="optRow"></div>
+  </div>
+  <script>
+    (window.__pendingErrors || []).forEach((m) => window.__showError(m));
+  </script>
+  <script type="module" src="effects.js"></script>
+</body>
+</html>

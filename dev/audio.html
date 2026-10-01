@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#15100d">
+  <meta name="color-scheme" content="dark">
+  <title>Expedition 69 — Audio Bench</title>
+  <link rel="icon" href="data:,">
+  <!-- Audio bench: every SFX and track, volume buses, an offline inspector and ?selftest=1 metering. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" media="print" onload="this.media='all'"
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap">
+  <style>
+    :root {
+      --ink: #15100d; --panel: rgba(16, 12, 10, 0.82); --gold: #e0b458; --pale: #f3dba0; --ivory: #f5eedf;
+      --muted: #b9a88a; --crimson: #e0553d; --ok: #8fcf6b; --warn: #e6c14a; --violet: #c77dff; --teal: #3f8fa0;
+      --title: "Cinzel", "Trajan Pro", Georgia, serif; --body: "Cormorant Garamond", Georgia, serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: radial-gradient(ellipse at 70% 0%, #3a2b4a 0%, #1b1828 45%, #15100d 100%) fixed; color: var(--ivory); }
+    body { font: 17px/1.35 var(--body); min-height: 100vh; padding: 18px 24px 40px; }
+    h1 { font: 700 26px var(--title); letter-spacing: 0.14em; margin: 0 0 2px; color: var(--pale); }
+    h2 { font: 700 13px var(--title); letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin: 0 0 8px; }
+    .sub { color: var(--muted); margin: 0 0 14px; font-style: italic; }
+    .panel { background: var(--panel); border: 1px solid rgba(224, 180, 88, 0.35); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35), inset 0 0 0 1px rgba(243, 219, 160, 0.05); }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+    .grow { flex: 1 1 380px; min-width: 0; }
+    .controls { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 10px 18px; align-items: center; }
+    label.slider { display: grid; grid-template-columns: 64px 1fr 40px; gap: 8px; align-items: center; font: 600 12px var(--title); letter-spacing: 0.08em; color: var(--muted); }
+    label.slider output { font: 12px ui-monospace, Menlo, monospace; color: var(--pale); text-align: right; }
+    input[type=range] { accent-color: var(--gold); width: 100%; }
+    .cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px 14px; }
+    .cat h3 { font: 600 11px var(--title); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+    .btns { display: flex; flex-wrap: wrap; gap: 5px; }
+    button { font: 600 12px var(--title); letter-spacing: 0.04em; color: var(--ivory); background: linear-gradient(#2d231c, #1d1612);
+      border: 1px solid rgba(224, 180, 88, 0.4); border-radius: 6px; padding: 5px 9px; cursor: pointer; }
+    button:hover { border-color: var(--gold); color: var(--pale); }
+    button:focus-visible { outline: 2px solid var(--pale); outline-offset: 1px; }
+    button.sharp::after { content: " ◆"; color: var(--gold); font-size: 9px; }
+    button.on { background: linear-gradient(#5a4122, #33261a); border-color: var(--pale); color: var(--pale); }
+    button.stop { border-color: rgba(224, 85, 61, 0.6); }
+    #inspector { width: 100%; height: 150px; display: block; border-radius: 6px; background: #0e0a08; }
+    .meta { font: 12px ui-monospace, Menlo, monospace; color: var(--muted); margin-top: 6px; min-height: 16px; }
+    .meta b { color: var(--pale); font-weight: 600; }
+    .status { font: 12px ui-monospace, Menlo, monospace; color: var(--muted); }
+    .status b { color: var(--pale); }
+    table { border-collapse: collapse; width: 100%; font: 12px ui-monospace, Menlo, monospace; }
+    th { font: 700 10px var(--title); letter-spacing: 0.14em; color: var(--gold); text-align: left; padding: 4px 6px; border-bottom: 1px solid rgba(224, 180, 88, 0.35); position: sticky; top: 0; background: #17110e; }
+    td { padding: 2px 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); white-space: nowrap; }
+    td.num { text-align: right; }
+    tr.bad td { background: rgba(224, 85, 61, 0.14); }
+    .flag { display: inline-block; padding: 0 5px; border-radius: 3px; font-size: 10px; margin-right: 3px; }
+    .flag.ok { color: #10200a; background: var(--ok); }
+    .flag.err { color: #fff; background: var(--crimson); }
+    .flag.warn { color: #2a1f00; background: var(--warn); }
+    .summary { font: 600 14px var(--title); letter-spacing: 0.06em; margin: 0 0 8px; }
+    .summary.pass { color: var(--ok); } .summary.fail { color: var(--crimson); }
+    .cols { columns: 2 540px; column-gap: 16px; }
+    .cols table { break-inside: avoid; }
+    canvas.wave { width: 96px; height: 22px; display: block; }
+    #errors { position: fixed; left: 8px; bottom: 8px; z-index: 10; max-width: 70vw; font: 13px/1.4 ui-monospace, Menlo, monospace;
+      color: #fff; background: rgba(150, 20, 20, 0.92); border: 1px solid #ff8a80; border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; }
+    #errors:empty { display: none; }
+    body.selftest .live-only { display: none; }
+  </style>
+  <script>
+    // Capture uncaught errors (including module load failures) and render them visibly for headless checks.
+    window.__errors = [];
+    (function () {
+      function show(msg) {
+        window.__errors.push(String(msg));
+        var box = document.getElementById('errors');
+        if (box) box.textContent = window.__errors.map(function (m) { return '⚠ ' + m; }).join('\n');
+      }
+      window.__showError = show;
+      window.addEventListener('error', function (e) { show((e.error && e.error.stack) || (e.message + ' @ ' + e.filename + ':' + e.lineno)); });
+      window.addEventListener('unhandledrejection', function (e) { var r = e.reason; show('Unhandled rejection: ' + ((r && r.stack) || r)); });
+    })();
+  </script>
+</head>
+<body>
+  <h1>Expedition 69 · Audio Bench</h1>
+  <p class="sub">Synthesized sound effects and procedural music. Click anything to unlock audio. ◆ = sharp-transient combat sound (attack ≤ 5 ms). Add <code>?selftest=1</code> for offline metering.</p>
+
+  <div class="panel live-only">
+    <h2>Buses &amp; Playback</h2>
+    <div class="controls" id="controls"></div>
+    <div class="status" id="status" style="margin-top:8px"></div>
+  </div>
+
+  <div class="row live-only">
+    <div class="panel grow" style="flex-basis:760px">
+      <h2>Sound Effects</h2>
+      <div class="cats" id="sfx"></div>
+    </div>
+    <div class="panel grow">
+      <h2>Music</h2>
+      <div class="btns" id="tracks"></div>
+      <h2 style="margin-top:14px">Inspector</h2>
+      <canvas id="inspector" width="900" height="300"></canvas>
+      <div class="meta" id="meta">Click a sound to render its waveform offline.</div>
+    </div>
+  </div>
+
+  <div class="panel" id="selftest" hidden>
+    <h2>Self-test</h2>
+    <div id="st-summary" class="summary">Running…</div>
+    <div class="cols" id="st-sfx"></div>
+    <h2 style="margin-top:14px">Music smoke test</h2>
+    <div id="st-music"></div>
+    <h2 style="margin-top:14px">Live Audio facade</h2>
+    <div id="st-live"></div>
+  </div>
+
+  <div id="errors"></div>
+  <script type="module" src="audio.js"></script>
+</body>
+</html>

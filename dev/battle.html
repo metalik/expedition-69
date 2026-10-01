@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#15100d">
+  <meta name="color-scheme" content="dark">
+  <title>Expedition 69 — Battle Bench</title>
+  <link rel="icon" href="data:,">
+  <!-- Fonts load without blocking the load event (the bench falls back to Georgia offline). -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" media="print" onload="this.media='all'"
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap">
+  <style>
+    :root {
+      --ink: #15100d; --panel: rgba(16, 12, 10, .82); --gold: #e0b458; --pale-gold: #f3dba0; --ivory: #f5eedf;
+      --parchment: #e9dcc0; --crimson: #a3302a; --teal: #2e7775; --violet: #8a5cc4;
+      --font-title: "Cinzel", serif; --font-body: "Cormorant Garamond", Georgia, serif;
+    }
+    html, body { background: #000; color: var(--ivory); }
+    #ui { pointer-events: none; }
+    #ui > * { pointer-events: auto; }
+    #ui > .bt-hud { pointer-events: none; }
+    #errors { position: fixed; left: 8px; bottom: 8px; z-index: 10; max-width: 70vw; font: 13px/1.4 ui-monospace, Menlo, monospace;
+      color: #fff; background: rgba(150, 20, 20, 0.92); border: 1px solid #ff8a80; border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; }
+    #errors:empty { display: none; }
+    #perf { position: fixed; right: 6px; top: 4px; z-index: 10; font: 11px/1.35 ui-monospace, Menlo, monospace; color: #e9dcc0;
+      background: rgba(10, 8, 6, .7); padding: 3px 7px; border-radius: 4px; pointer-events: none; white-space: pre; }
+    #perf:empty { display: none; }
+    .bench-box { position: absolute; font-family: var(--font-body); color: var(--ivory); }
+  </style>
+  <script>
+    // Capture uncaught errors (including module load failures) and show them on the page so
+    // headless screenshots reveal them.
+    window.__errors = [];
+    (function () {
+      function show(msg) {
+        window.__errors.push(String(msg));
+        var box = document.getElementById('errors');
+        if (box) box.textContent = window.__errors.map(function (m) { return '⚠ ' + m; }).join('\n');
+      }
+      window.__showError = show;
+      window.addEventListener('error', function (e) {
+        show((e.error && e.error.stack) || (e.message + ' @ ' + e.filename + ':' + e.lineno));
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        var r = e.reason;
+        show('Unhandled rejection: ' + ((r && r.stack) || r));
+      });
+    })();
+  </script>
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage">
+      <canvas id="game" width="1280" height="720" aria-label="Battle bench canvas"></canvas>
+      <div id="ui" aria-live="polite"></div>
+      <div id="fade"></div>
+    </div>
+  </div>
+  <div id="perf"></div>
+  <div id="errors" role="alert"></div>
+  <script type="module" src="battle.js"></script>
+</body>
+</html>

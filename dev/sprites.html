@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Expedition 69 — Sprite Gallery</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <!-- Dev showcase for src/render/sprites.js: grid, single pose, contact sheets, portraits, world scale, perf. -->
+  <style>
+    :root { color-scheme: dark; }
+    html, body { margin: 0; background: #15100d; color: #e9dcc0; font-family: "Cormorant Garamond", Georgia, serif; }
+    header { padding: 10px 16px; display: flex; gap: 18px; align-items: baseline; flex-wrap: wrap; border-bottom: 1px solid #3a2b20; }
+    header h1 { font: 700 18px "Cinzel", Georgia, serif; letter-spacing: 0.12em; margin: 0; color: #f3dba0; }
+    header a { color: #e0b458; font-size: 15px; text-decoration: none; }
+    header a:hover { text-decoration: underline; }
+    #info { font-size: 14px; color: #c9b894; }
+    #errors { margin: 0; padding: 0 16px; color: #ff6b5a; font: 13px/1.4 ui-monospace, Menlo, monospace; white-space: pre-wrap; }
+    #errors:empty { display: none; }
+    canvas { display: block; }
+    #help { position: fixed; right: 10px; bottom: 10px; font: 12px/1.45 ui-monospace, Menlo, monospace; background: rgba(16,12,10,0.85);
+      border: 1px solid #5a4630; padding: 8px 10px; color: #d9c9a4; white-space: pre; display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>EXPEDITION 69 · SPRITES</h1>
+    <a href="?">grid</a>
+    <a href="?weak=1">weak points</a>
+    <a href="?portraits=1">portraits</a>
+    <a href="?world=1">world 0.45</a>
+    <a href="?fx=1">fx overlays</a>
+    <a href="?perf=1">perf</a>
+    <a href="?look=gideon&amp;play=1">interactive</a>
+    <span id="info"></span>
+  </header>
+  <pre id="errors"></pre>
+  <canvas id="c"></canvas>
+  <div id="help"></div>
+  <script>
+    // Surface errors visibly (also for headless screenshots).
+    (function () {
+      const out = () => document.getElementById('errors');
+      const add = (msg) => { const el = out(); if (el) el.textContent += msg + '\n'; };
+      window.addEventListener('error', (e) => add('ERROR: ' + (e.message || e.error) + (e.filename ? ' @ ' + e.filename.split('/').pop() + ':' + e.lineno : '')));
+      window.addEventListener('unhandledrejection', (e) => add('REJECTION: ' + (e.reason && (e.reason.stack || e.reason.message) || e.reason)));
+      const warn = console.warn.bind(console);
+      console.warn = (...a) => { add('WARN: ' + a.join(' ')); warn(...a); };
+      const err = console.error.bind(console);
+      console.error = (...a) => { add('CONSOLE ERROR: ' + a.map((x) => (x && x.stack) || x).join(' ')); err(...a); };
+    })();
+  </script>
+  <script type="module" src="sprites.js"></script>
+</body>
+</html>
